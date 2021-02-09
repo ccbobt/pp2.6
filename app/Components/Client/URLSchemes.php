@@ -11,14 +11,14 @@ class URLSchemes
         $name = rawurlencode($server['name']);
         $str = base64url_encode("{$server['method']}:{$server['method']}");
 
-        return "ss://{$str}@{$server['host']}:{$server['port']}#{$name}".PHP_EOL;
+        return "ss://{$str}@{$server['host']}:{$server['port']}#{$name}";
     }
 
     public static function buildShadowsocksr($server)
     {
         $setting = "{$server['host']}:{$server['port']}:{$server['protocol']}:{$server['method']}:{$server['obfs']}:";
 
-        return 'ssr://'.base64url_encode($setting.base64url_encode($server['passwd']).'/?obfsparam='.base64url_encode($server['obfs_param']).'&protoparam='.base64url_encode($server['protocol_param']).'&remarks='.base64url_encode($server['name']).'&group='.base64url_encode($server['group']).'&udpport='.$server['udp'].'&uot=0').PHP_EOL;
+        return 'ssr://' . base64url_encode($setting . base64url_encode($server['passwd']) . '/?obfsparam=' . base64url_encode($server['obfs_param']) . '&protoparam=' . base64url_encode($server['protocol_param']) . '&remarks=' . base64url_encode($server['name']) . '&group=' . base64url_encode($server['group']) . '&udpport=' . $server['udp'] . '&uot=0');
     }
 
     // TODO: More study required about id usage https://shadowsocks.org/en/wiki/SIP008-Online-Configuration-Delivery.html
@@ -50,17 +50,14 @@ class URLSchemes
             'tls' => $server['v2_tls'],
         ];
 
-        return 'vmess://'.base64_encode(json_encode($config)).PHP_EOL;
+        return 'vmess://' . base64_encode(json_encode($config));
     }
 
     public static function buildTrojan($server)
     {
         $name = rawurlencode($server['name']);
-        $query = '';
-        if (array_key_exists('relay_server', $server)) {
-            $query = "?sni={$server['relay_server']}";
-        }
+        $query = "?sni={$server['sni']}";
 
-        return "trojan://{$server['passwd']}@{$server['host']}:{$server['port']}{$query}#{$name}".PHP_EOL;
+        return "trojan://{$server['passwd']}@{$server['host']}:{$server['port']}{$query}#{$name}";
     }
 }
