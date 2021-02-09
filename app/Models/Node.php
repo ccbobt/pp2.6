@@ -93,7 +93,7 @@ class Node extends Model
 
         if ($data) {
             self::withoutEvents(function () use ($data) {
-                $this->update(['geo' => $data['latitude'].','.$data['longitude']]);
+                $this->update(['geo' => $data['latitude'] . ',' . $data['longitude']]);
             });
 
             return 1;
@@ -129,9 +129,9 @@ class Node extends Model
             case 3:
                 $config = array_merge($config, [
                     'type'   => 'trojan',
-                    'port'   => $this->is_relay ? $this->relay_port : $this->v2_port,
+                    'port'   => $this->is_relay ? $this->relay_port : $this->port,
                     'passwd' => $user->passwd,
-                    'sni'    => $this->is_relay ? $this->server : '',
+                    'sni'    => $this->server,
                     'udp'    => $this->is_udp,
                 ]);
                 break;
@@ -149,7 +149,7 @@ class Node extends Model
                     //单端口使用中转的端口
                     $config['port'] = $this->is_relay ? $this->relay_port : $this->port;
                     $config['passwd'] = $this->passwd;
-                    $config['protocol_param'] = $user->port.':'.$user->passwd;
+                    $config['protocol_param'] = $user->port . ':' . $user->passwd;
                 } else {
                     $config['port'] = $user->port;
                     $config['passwd'] = $user->passwd;
