@@ -7,7 +7,7 @@
         <div class="panel">
             <div class="panel-heading">
                 <h3 class="panel-title">用户在线IP列表
-                    <small>最近10分钟</small>
+                    <small>最近1天</small>
                 </h3>
             </div>
             <div class="panel-body">
