@@ -35,11 +35,11 @@ class LogsController extends Controller
 
         if (isset($email)) {
             $query->whereHas('user', static function ($q) use ($email) {
-                $q->where('email', 'like', '%'.$email.'%');
+                $q->where('email', 'like', '%' . $email . '%');
             });
         }
         if (isset($sn)) {
-            $query->where('sn', 'like', '%'.$sn.'%');
+            $query->where('sn', 'like', '%' . $sn . '%');
         }
 
         if (isset($is_coupon)) {
@@ -106,7 +106,7 @@ class LogsController extends Controller
 
         if (isset($email)) {
             $query->whereHas('user', static function ($q) use ($email) {
-                $q->where('email', 'like', '%'.$email.'%');
+                $q->where('email', 'like', '%' . $email . '%');
             });
         }
 
@@ -145,7 +145,7 @@ class LogsController extends Controller
         $query = NotificationLog::query();
 
         if (isset($email)) {
-            $query->where('address', 'like', '%'.$email.'%');
+            $query->where('address', 'like', '%' . $email . '%');
         }
 
         if (isset($type)) {
@@ -171,7 +171,7 @@ class LogsController extends Controller
 
         if (isset($email)) {
             $query->whereHas('user', static function ($q) use ($email) {
-                $q->where('email', 'like', '%'.$email.'%');
+                $q->where('email', 'like', '%' . $email . '%');
             });
         }
 
@@ -219,7 +219,7 @@ class LogsController extends Controller
 
         if (isset($email)) {
             $query->whereHas('user', static function ($q) use ($email) {
-                $q->where('email', 'like', '%'.$email.'%');
+                $q->where('email', 'like', '%' . $email . '%');
             });
         }
 
@@ -235,7 +235,7 @@ class LogsController extends Controller
 
         if (isset($email)) {
             $query->whereHas('user', static function ($q) use ($email) {
-                $q->where('email', 'like', '%'.$email.'%');
+                $q->where('email', 'like', '%' . $email . '%');
             });
         }
 
@@ -251,7 +251,7 @@ class LogsController extends Controller
 
         if (isset($email)) {
             $query->whereHas('user', static function ($q) use ($email) {
-                $q->where('email', 'like', '%'.$email.'%');
+                $q->where('email', 'like', '%' . $email . '%');
             });
         }
 
@@ -269,15 +269,15 @@ class LogsController extends Controller
         $query = User::activeUser();
 
         if (isset($email)) {
-            $query->where('email', 'like', '%'.$email.'%');
+            $query->where('email', 'like', '%' . $email . '%');
         }
 
         if (isset($wechat)) {
-            $query->where('wechat', 'like', '%'.$wechat.'%');
+            $query->where('wechat', 'like', '%' . $wechat . '%');
         }
 
         if (isset($qq)) {
-            $query->where('qq', 'like', '%'.$qq.'%');
+            $query->where('qq', 'like', '%' . $qq . '%');
         }
 
         if (isset($port)) {
@@ -286,11 +286,11 @@ class LogsController extends Controller
 
         $userList = $query->paginate(15)->appends($request->except('page'));
 
-        $nodeOnlineIPs = NodeOnlineIp::with('node:id,name')->where('created_at', '>=', strtotime('-10 minutes'))->latest()->distinct()->get();
+        $nodeOnlineIPs = NodeOnlineIp::with('node:id,name')->where('created_at', '>=', strtotime('-1440 minutes'))->latest()->distinct()->get();
         foreach ($userList as $user) {
             //Todo node_online_ip表 api可以用user_id
             // 最近5条在线IP记录，如果后端设置为60秒上报一次，则为10分钟内的在线IP
-            $user->onlineIPList = $nodeOnlineIPs->where('port', $user->port)->take(5);
+            $user->onlineIPList = $nodeOnlineIPs->where('port', $user->port)->take(24);
         }
 
         return view('admin.logs.userOnlineIP', ['userList' => $userList]);
