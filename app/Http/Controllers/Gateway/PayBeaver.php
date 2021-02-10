@@ -38,12 +38,12 @@ class PayBeaver extends AbstractPayment
         ]);
 
         if (isset($result['message'])) {
-            Log::warning('创建订单错误：'.$result['message']);
+            Log::warning('创建订单错误：' . $result['message']);
 
-            return Response::json(['status' => 'fail', 'message' => '创建订单失败：'.$result['message']]);
+            return Response::json(['status' => 'fail', 'message' => '创建订单失败：' . $result['message']]);
         }
 
-        if (! isset($result['data']['pay_url'])) {
+        if (!isset($result['data']['pay_url'])) {
             Log::warning('创建订单错误：未知错误');
 
             return Response::json(['status' => 'fail', 'message' => '创建订单失败：未知错误']);
@@ -58,13 +58,15 @@ class PayBeaver extends AbstractPayment
     {
         $params['sign'] = $this->sign($params);
 
-        $response = Http::post($this->url.'/orders', $params);
+        $response = Http::post($this->url . '/orders', $params);
 
         if ($response->ok()) {
             return $response->json();
         }
 
-        return Response::json(['status' => 'fail', 'message' => '获取失败！请检查配置信息']);
+        Log::error(var_export($response->json(), true));
+
+        return ['status' => 'fail', 'message' => '获取失败！请检查配置信息'];
     }
 
     private function sign($params)
@@ -75,12 +77,12 @@ class PayBeaver extends AbstractPayment
         ksort($params);
         reset($params);
 
-        return strtolower(md5(http_build_query($params).$this->appSecret));
+        return strtolower(md5(http_build_query($params) . $this->appSecret));
     }
 
     public function notify($request): void
     {
-        if (! $this->paybeaverVerify($request->post())) {
+        if (!$this->paybeaverVerify($request->post())) {
             exit(json_encode(['status' => 400]));
         }
 
