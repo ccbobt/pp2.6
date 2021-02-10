@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Config;
-use Cache;
+use Artisan;
 
 class ConfigObserver
 {
