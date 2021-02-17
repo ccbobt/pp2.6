@@ -22,17 +22,17 @@ class DailyJob extends Command
         $this->expireUser(); // 过期用户处理
         $this->closeTickets(); // 关闭超时未处理的工单
 
-        if (sysConfig('reset_traffic')) {// 重置用户流量
+        if (sysConfig('reset_traffic')) { // 重置用户流量
             $this->resetUserTraffic();
         }
 
         $jobEndTime = microtime(true);
         $jobUsedTime = round(($jobEndTime - $jobStartTime), 4);
 
-        Log::info('---【'.$this->description.'】完成---，耗时'.$jobUsedTime.'秒');
+        Log::info('---【' . $this->description . '】完成---，耗时' . $jobUsedTime . '秒');
     }
 
-    private function expireUser()// 过期用户处理
+    private function expireUser() // 过期用户处理
     {
         $isBanStatus = sysConfig('is_ban_status');
         User::activeUser()
@@ -76,21 +76,29 @@ class DailyJob extends Command
             });
     }
 
-    private function closeTickets()// 关闭超时未处理的工单
+    private function closeTickets() // 关闭超时未处理的工单
     {
         Ticket::whereStatus(1)
-            ->where('updated_at', '<=', date('Y-m-d', strtotime('-'.config('tasks.close.ticket').' hours')))
+            ->whereHas('reply', function ($q) {
+                $q->where('admin_id', '<>', null);
+            })
+            ->has('reply')
+            ->where('updated_at', '<=', date('Y-m-d', strtotime('-' . config('tasks.close.ticket') . ' hours')))
             ->chunk(config('tasks.chunk'), function ($tickets) {
                 foreach ($tickets as $ticket) {
                     if ($ticket->close()) {
-                        $ticket->user->notify(new TicketClosed($ticket->id, $ticket->title, route('replyTicket', ['id' => $ticket->id]),
-                            __('You have not responded this ticket in :num hours, System has auto closed your ticket.', ['num' => config('tasks.close.ticket')])));
+                        $ticket->user->notify(new TicketClosed(
+                            $ticket->id,
+                            $ticket->title,
+                            route('replyTicket', ['id' => $ticket->id]),
+                            __('You have not responded this ticket in :num hours, System has closed your ticket.', ['num' => config('tasks.close.ticket')])
+                        ));
                     }
                 }
             });
     }
 
-    private function resetUserTraffic()// 重置用户流量
+    private function resetUserTraffic() // 重置用户流量
     {
         User::where('status', '<>', -1)
             ->where('expired_at', '>', date('Y-m-d'))
@@ -101,7 +109,7 @@ class DailyJob extends Command
                 foreach ($users as $user) {
                     $order = $user->orders()->activePlan()->first(); // 取出用户正在使用的套餐
 
-                    if (! $order) {// 无套餐用户跳过
+                    if (!$order) { // 无套餐用户跳过
                         continue;
                     }
 
@@ -112,9 +120,9 @@ class DailyJob extends Command
                     if ($user->update((new OrderService($order))->resetTimeAndData($user->expired_at))) {
                         // 可用流量变动日志
                         Helpers::addUserTrafficModifyLog($order->user_id, $order->id, $oldData, $user->transfer_enable, '【流量重置】重置可用流量');
-                        Log::info('用户[ID：'.$user->id.'  昵称： '.$user->username.'  邮箱： '.$user->email.'] 流量重置为 '.flowAutoShow($user->transfer_enable).'. 重置日期为 '.($user->reset_time ?: '【无】'));
+                        Log::info('用户[ID：' . $user->id . '  昵称： ' . $user->username . '  邮箱： ' . $user->email . '] 流量重置为 ' . flowAutoShow($user->transfer_enable) . '. 重置日期为 ' . ($user->reset_time ?: '【无】'));
                     } else {
-                        Log::warning('用户[ID：'.$user->id.'  昵称： '.$user->username.'  邮箱： '.$user->email.'] 流量重置失败');
+                        Log::warning('用户[ID：' . $user->id . '  昵称： ' . $user->username . '  邮箱： ' . $user->email . '] 流量重置失败');
                     }
                 }
             });
