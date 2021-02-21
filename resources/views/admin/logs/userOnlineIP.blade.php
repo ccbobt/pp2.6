@@ -84,7 +84,7 @@
                                         <tbody>
                                         @foreach($user->onlineIPList as $log)
                                             <tr>
-                                                <td>{{$log->created_at}}</td>
+                                                <td>{{date("Y-m-d H:i:s",$log->created_at)}}</td>
                                                 <td>{{$log->node->name ?? '【节点已删除】'}}</td>
                                                 <td>{{$log->type}}</td>
                                                 <td>
